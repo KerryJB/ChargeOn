@@ -1,0 +1,275 @@
+=============================
+ Image list for blog post on
+      Arduino / Win32
+  Laptop Battery Conditioner
+=============================
+
+* Screenshots
+  - 
+  -
+  -
+                    
+* Photos
+  10) Original photo of working assembly (on laptop lid)
+
+  20) Project box and perfboard
+  21) Trimming perfboard to rough length
+  22) Sanding perfboard to perfect length
+  23) Rounding perfboard corners
+
+  30) Arduino Pro Micro in lower box half with standard male headers
+      - Pro Micro board sticks up too far!
+  31) Changing the "leg length" of the male headers
+  32) Arduino Pro Micro in lower box half with "tweaked" male headers
+      - Pro Micro board sticks up "just right"
+
+  40) Arduino in box, 433 MHz transmitter doesn't fit
+  41) 
+
+
+======================================================
+ 8-hour Test Results with Dell Inspiron15_____ laptop
+======================================================
+    -----------------------------------------------------
+     Starting Charge        Plugged In       BattyRefresh
+    -----------------------------------------------------
+          100%               .07 KWH           .05 KWH
+           30%               .10 KWH           .07 KWH
+    
+
+========
+ ISSUES
+========
+1) [FIXED] Windows messages about outlet not turning On / Off as expected
+   sometimes appear right after the problem has been fixed, especially when
+   the ChargeOn program is first run. (The battery charge CAN be "out of
+   range" on startup, but the outlet CAN also turn On / Off *appropriately*
+   right after the first battery check.)
+
+2) [FIXED by standardizing on Nano boards]
+   When using a Pro Micro, may need to replace "Serial." with "Serial1." if you
+   want to monitor the actual USB serial data stream ... say, with PulseView.
+   (Need to test this!)
+   A) If this turns out to be true, may need to maintain different versions of
+      the Arduino source code for Pro Micro vs Nano, vs ...
+
+3) [FIXED] "Tools" menu: Add item for installing CH340 driver
+   * I don't think it will be feasible to install the CH340 driver directly
+     from that menu.
+     On second thought, maybe we could:
+     - Include (in the ChargeOn installer) the directory and files created by
+       running CH341SER.EXE
+     - When the user chooses "Tools > Install driver" from the ChargeOn menu:
+       + Close the serial port (if we're connected to one)
+       + Invoke SETUP.EXE for the CH340
+       + Wait for SETUP.EXE to complete
+
+4) [FIXED] "Tools" menu: Add a menu item for installing a software update
+   (*.hex file) for the "ChargeOn module" (Arduino)
+   A) Will probably require a "child" dialog that includes (among other
+      controls) a button to invoke an Explorer dialog to specify *.hex file
+   B) Must make sure a ChargeOn module is currently connected, and must know
+      its COM port number
+   C) Construct an appropriate command line for avrdude and execute it
+
+5) [FIXED] Need an icon for the desktop shortcut, etc.
+
+6) [FIXED] Prevent multiple instances
+
+7) [FIXED] If laptop is Hibernated while ChargeOn is running, and then laptop
+   is brought back from Hibernation, the outlet does not turn ON/OFF when it
+   should.
+   * This is because the Arduino "forgets" the current outlet settings when
+     power is removed.
+   * As part of handling the CO_SETTINGS signal, we need to store outlet
+     setting values in the EEPROM of the Arduino.
+   * We also need to automatically populate outlet setting values (in Arduino
+     program memory) from EEPROM when the Arduino is powered up.
+   * If ChargeOn registry key does not exist yet (right after initial setup of
+     ChargeOn) Win32 program should request the Arduino's EEPROM settings, then
+     send them back to the Arduino and save them to the registry.
+   * [0.8.06] the 433MHz transmitter was only being configured when handling a
+     <CO_SETTINGS> signal, so added a call to RCTransmitterSetup() in setup()
+
+
+=======
+ IDEAS
+=======
+7) Logging
+   A) Allow user to specify a log file and/or CSV report file
+   B) Allow user to choose types of events to log
+      - Change in battery perentage
+      - Turn outlet ON
+      - Turn outlet OFF
+      - Lost communication with serial port?
+      - Changes to settings?
+      - Others?
+      - Include option for "CO_BEAT" messages ... or not?
+
+9) CH340 Installer improvements
+   * Put up a MessageBox (or a set of wizard pages?) with instructions on how to proceed
+     - Choose "Uninstall" first, then "Install"
+     - Be patient, each step can take minutes to complete!
+   * [SHELVED] If more than X minutes pass, put up a MessageBox asking if the user
+     is still trying to install the driver?
+
+11) Add URL for project web page to Help > About dialog?
+
+   -----------------------------------------------
+
+1) [DONE] Reassign pins for 433MHz transmitter/receiver & SoftwareSerial
+   connection to trios that can be used on both Pro Micro & Nano.
+   A) From https://www.arduino.cc/en/Reference/softwareSerial ("Limitations"
+      section) Not all pins on the Leonardo and Micro support change interrupts
+      so only the following pins can be used for Software Serial RX:
+         8, 9, 10, 11, 14 (MISO), 15 (SCK), 16 (MOSI).
+   B) Possible configurations:
+      i) 433MHz receiver
+         - GND = GND
+         - D2  = (Virtual) VCC  [pinMode(2, OUTPUT); digitalWrite(2, HIGH);]
+         - D3  = Data
+      ii) 433MHz transmitter
+         - D4  = (Virtual) GND  [pinMode(4, OUTPUT); digitalWrite(5, LOW);]
+         - D5  = (Virtual) VCC  [pinMode(5, OUTPUT); digitalWrite(5, HIGH);]
+         - D6  = Data
+      iii) SendOnlySoftwareSerial  ** Use SoftwareSerial if RX is needed **
+         a) [PREFERRED]
+            - D7 = (Virtual) GND [pinMode(7, OUTPUT); digitalWrite(7, LOW);]
+                   This connection is OPTIONAL if the output is received by a
+                   USB-to-Serial module plugged into the same PC.
+            - D8 = RX  (OPTIONAL unless corresponding functionality is needed)
+            - D9 = TX
+         b) [ALTERNATE (Untested)]
+            - D14 = (Virtual) GND [pinMode(14, OUTPUT); digitalWrite(14, LOW);]
+                    This connection is OPTIONAL if the output is received by a
+                    USB-to-Serial module plugged into the same PC.
+                    (On the Nano this is the A0 pin)
+            - D15 = RX  (OPTIONAL unless corresponding functionality is needed)
+                        (On the Nano this is the A1 pin)
+            - D16 = TX  (On the Nano this is the A2 pin)
+     
+2) [NOT NEEDED WITH CURRENT BOXES]
+   Drill hole near one corner of project box (and perfboard) to allow box to be
+   re-opened (using a screwdriver or similar) after it's fully assembled.
+
+3) [DONE] Add 433MHz receiver for learning the remote signals for the outlet to be
+   used.
+   A) [DONE] Windows program
+      i) Prompt user to (repeatedly) press remote control ON button for the
+         target outlet
+      ii) Send <CO_LEARN> signal to Arduino when user clicks "Go"
+   B) [DONE] Arduino sketch
+      i) Recognize "LEARN" signal
+      ii) Enter loop to detect/capture code from remote control
+          - Continue until code is captured or timeout expires
+      iii) Captured a code?
+           - Yes
+             + Store captured data in local variables
+             + Populate output string with formatted values
+                "<CO_LEARN_OK>[Code:___][Pro:____][PLen:____][VLen:____][]"
+           - No
+             + Populate output string with no extra data
+                "<CO_LEARN_OK>[]"
+      iv) Send response to Windows program
+   C) [DONE] Windows program
+      i) Parse response from Arduino
+      ii) Did it include "outlet code" data?
+          - Yes
+            + Store data values in temp variables
+              * Store "Code" value as the ON code
+            + Display message to user
+              * Report data values for the ON code
+              * Prompt user to (repeatedly) press remote control OFF button for
+                the target outlet
+            + What did user click?
+              * "Go"
+                - Send <CO_LEARN> signal to Arduino
+                - Go to Step D
+              * Cancel
+                - Cancel out of the "Learn" function
+          - No
+            + Ask user if they want to try again
+              * If Yes, go to Step A
+              * If No, cancel out of the "Learn" function
+   D) [DONE] Arduino sketch
+      i) Repeat Step B
+   E) [DONE] Windows program
+      i) Repeat Step C, but...
+         - Store "Code" value as the OFF code
+         - [DIDN'T BOTHER] Average the 2 Pulse Length values
+      ii) Display results to user, ask if they would like the "learned" data to
+          replace the current values for the outlet
+          - Yes
+            + Copy values from temp variables to global variables, populate
+              Outlet prop page controls
+          - No
+            + Cancel out of the "Learn" function
+      iii) User can still press OK or Cancel for the Settings property sheet as
+           a whole
+
+4) [DONE]
+   Allow user to enter battery charge range ... and store in Registry
+
+5) [DONE]
+   Allow user to specify WAIT_INTERVAL, and whether to update display/log after
+   every check or only when something changes.
+
+6) [DONE] Outlet details
+   A) [DONE] Allow user to enter outlet details:
+     * On code
+     * Off code
+     * Protocol
+     * PulseLength
+     * PulseRepeats
+   B) [DONE] Communicate outlet details to Arduino
+     * [DONE] Right after initializing the serial port
+     * [DONE] After making changes in the Options dialog
+   C) [SHELVED] Save outlet details to Arduino EEPROM? I'm thinking NOT...
+
+8) [SHELVED] Any reason to add DIP switches? Is there any room for them in the
+   project box?
+
+10) [DONE] Add version info to Help > About dialog
+    * Win32 program version
+    * Arduino sketch version
+      - Will require support for a new "VERSION" signal
+    
+
+==============
+ INSTALLATION
+==============
+1) Post-installation
+   a) [DONE] Folder structure
+        - ChargeOn
+          - avrdude
+            - bin
+              - avrdude.exe
+              - libusb0.dll
+            - etc
+              - avrdude.conf
+            - hexfiles
+              - Debug
+                - ChargeOn.*.debug.*.hex
+              - ChargeOn.*.release.*.hex
+          - drivers
+            - CH341SER
+              - DRVSETUP64
+                - DRVSETUP64.exe
+              - CH341PT.DLL
+              - CH341S64.SYS
+              - CH341S98.SYS
+              - ch341SER.CAT
+              - CH341SER.INF
+              - CH341SER.SYS
+              - CH341SER.VXD
+              - SETUP.EXE
+          - ChargeOn.exe     
+          - unins000.dat
+          - unins000.exe
+   b) [DONE] Registry
+      * Outlet codes [?Support multiple outlets?]
+        - ON code
+        - OFF code
+      * Battery charge range
+      * Battery check interval
+        - Update every time, or only when change is detected?
