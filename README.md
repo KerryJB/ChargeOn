@@ -12,14 +12,14 @@ A search for existing laptop-based solutions only turned up network-based approa
 
 ## Features
 * Continuous display of battery charge percentage, and whether the battery is charging or discharging
-* User-configurable minimum charging range, from 20 to 95%
-* User-configurable maximum charging range, from 25 to 100%
+* User-configurable MINimum charging range, from 20 to 95%
+* User-configurable MAXimum charging range, from 25 to 100%
 * On-screen button for manually turning the outlet ON (when discharging) or OFF (when charging)
 * User-configurable update interval
 * User-configurable remote outlet settings, as used by the Arduino **RCSwitch** library
   * ON code
   * OFF code
-  * Bit length of On/OFF codes
+  * Bit length of ON/OFF codes
   * Protocol
   * Pulse length
 * "Learn" function to capture the above settings for an outlet, as tranmitted by its dedicated remote control
