@@ -2,8 +2,11 @@
 Windows laptop battery conditioner (GUI version)
 
 ## Components
-* Win32 API program
-* Arduino Nano board and sketch
-* 433MHz transmitter module
-* 433MHz receiver module (optional)
+* Arduino Nano board with 433MHz transmitter module and (optional) 433MHz receiver module
 * 433MHz remote outlet switch (tested with Etekcity ZAP and Dewenwils)
+
+* Windows program
+  * ![Windows dialog interface](http://kerryburton.com/Images/ChargeOnModule/ChargeOn_WindowsDialogInterface.jpg)
+  
+* Arduino sketch
+  * ![Arduino sketch](http://kerryburton.com/Images/ChargeOnModule/ChargeOn_ArduinoSketch.jpg)
