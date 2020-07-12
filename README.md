@@ -48,5 +48,9 @@ A search for existing laptop-based solutions only turned up network-based approa
 * Windows program
   * ![Windows dialog interface](http://kerryburton.com/Images/ChargeOnModule/ChargeOn_WindowsDialogInterface.jpg)
   
+  * ![Windows Tools Menu](http://kerryburton.com/Images/ChargeOnModule/ChargeOn_WindowsToolsMenu.jpg)
+  
+  * ![Windows dialog interface](http://kerryburton.com/Images/ChargeOnModule/ChargeOn_WindowsOutletSettings.jpg)
+  
 * Arduino sketch
   * ![Arduino sketch](http://kerryburton.com/Images/ChargeOnModule/ChargeOn_ArduinoSketch.jpg)
